@@ -18,13 +18,17 @@ Dungeon::Dungeon(std::string seed, int width, int height, int unit_square) : mRo
     mHeight = height;
     mUnitSquare = unit_square;
     // init grid
-    for(int i = 0; i<height; i++) {
-        std::vector<unsigned int> line;
-        for(int j = 0; j<width; j++) {
-            line.push_back(0);
-        }
-        mGrid.push_back(line);
-    }
+	mGrid = std::vector< std::vector< unsigned int > >(height, std::vector< unsigned int >(width, 0));
+	
+	#ifdef DEBUG
+	std::cout << "Spitting the grid [" << mGrid.size() << "]: " << std::endl;
+	for(int i = 0; i<mGrid.size(); i++) {
+		for(int j = 0; j<mGrid[i].size(); j++) {
+			std::cout << mGrid[i][j];
+		}
+		std::cout << std::endl;
+	}
+	#endif
 	
 	std::cout << "Grid height: " << mGrid.size();
     
