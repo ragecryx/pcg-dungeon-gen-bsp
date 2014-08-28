@@ -18,9 +18,9 @@ Dungeon::Dungeon(std::string seed, int width, int height, int unit_square) : mRo
     mHeight = height;
     mUnitSquare = unit_square;
     // init grid
-    for(int i; i<height; i++) {
+    for(int i=0; i<height; i++) {
         std::vector<unsigned int> line;
-        for(int j; j<width; j++) {
+        for(int j=0; j<width; j++) {
             line.push_back(0);
         }
         mGrid.push_back(line);
