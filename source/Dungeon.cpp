@@ -14,18 +14,6 @@ Dungeon::Dungeon(std::string seed, int width, int height, int unit_square) : mRo
     mUnitSquare = unit_square;
     // init grid
 	mGrid = std::vector< std::vector< unsigned int > >(height, std::vector< unsigned int >(width, 0));
-	
-	#ifdef DEBUG
-		std::cout << "The grid [" << &mGrid << "]" << std::endl;
-		for(int i = 0; i<mGrid.size(); i++) {
-			for(int j = 0; j<mGrid[i].size(); j++) {
-				std::cout << mGrid[i][j];
-			}
-			std::cout << std::endl;
-		}
-	#endif
-	
-	std::cout << "Grid height: " << mGrid.size() << std::endl;
     
     mSeedString = seed;
     mSeedSeq = std::seed_seq( mSeedString.begin(), mSeedString.end() );
@@ -39,13 +27,20 @@ Dungeon::~Dungeon() { }
 
 // Public Methods
 void Dungeon::Generate() {
+	// Clean-up if already generated
+	// TODO
+	
+	// Generate dungeon parts
     SplitSpace(&mRootNode);
     FindRoomsDigCorridors();
-    PlaceEntranceAndExit();
+	BakeFloor();
+	PlaceEntranceAndExit();
+	PlaceDoors();
+	BakeDetails();
+	
     std::cout << "Dungeon Generation complete!" << std::endl;
 	
 	#ifdef DEBUG
-		std::cout << "The grid [" << &mGrid << "] " << std::endl;
 		for(int i = 0; i<mGrid.size(); i++) {
 			for(int j = 0; j<mGrid[i].size(); j++) {
 				std::cout << mGrid[i][j];
@@ -114,7 +109,7 @@ void Dungeon::FindRoomsDigCorridors() {
     // adhere to the minimum size required
     while( it.Next() != false ) {
         if( it.IsLeaf() == true && it.GetData().getWidth() > 3 && it.GetData().getHeight() > 3 ) {
-            mRooms.push_back( it.GetData() );
+            mRooms.push_back( AABB(it.GetData().X()+1, it.GetData().Y()+1, it.GetData().getWidth()-2, it.GetData().getHeight()-2) );
             #ifdef DEBUG
 				std::cout << "Added [" << it.GetData().X() << ", " << it.GetData().Y() << ", " << it.GetData().getWidth() << ", " << it.GetData().getHeight() << "]" << std::endl;
             #endif
@@ -168,6 +163,50 @@ void Dungeon::PlaceEntranceAndExit() {
         std::cout << "Exit: [" << mExit.x << ", " << mExit.y << "]" << std::endl;
     #endif
 
+}
+
+
+
+void Dungeon::BakeFloor() {
+	std::cout << std::endl << "Baking data on mGrid..." << std::endl;
+	// Rooms...
+	for(std::vector< Room >::iterator it = mRooms.begin(); it != mRooms.end(); ++it) {
+		for(int i = it->Y(); i < it->Y()+it->getHeight(); i++) {
+			for(int j = it->X(); j < it->X()+it->getWidth(); j++) {
+				mGrid[i][j] = 1;
+			}
+		}
+	}
+	// Corridors...
+	for(std::vector< Path >::iterator it = mCorridors.begin(); it != mCorridors.end(); ++it) {
+		for(Path::iterator pathIt = it->begin(); pathIt != it->end(); ++pathIt) {
+			if(mGrid[pathIt->y][pathIt->x] != 1)
+				mGrid[pathIt->y][pathIt->x] = 2;
+		}
+	}
+}
+
+
+
+void Dungeon::PlaceDoors() {
+	for(int i = 1; i < mGrid.size()-1; i++) {
+		for(int j = 1; j < mGrid[i].size()-1; j++) {
+			if( mGrid[i][j] == 2 && (mGrid[i+1][j] == 1 || mGrid[i-1][j] == 1 || mGrid[i][j+1] == 1 || mGrid[i][j-1] == 1) &&
+				(mGrid[i+1][j] != 5 && mGrid[i-1][j] != 5 && mGrid[i][j+1] != 5 && mGrid[i][j-1] != 5) &&
+				((mGrid[i+1][j] == 0 && mGrid[i-1][j] == 0) || (mGrid[i][j+1] == 0 && mGrid[i][j-1] == 0)) )
+					{
+						mGrid[i][j] = 5;
+					}
+		}
+	}
+}
+
+
+
+void Dungeon::BakeDetails() {
+	// Entrance and exit...
+	mGrid[mEntrance.y][mEntrance.x] = 3;
+	mGrid[mExit.y][mExit.x] = 4;
 }
 
 

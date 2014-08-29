@@ -44,6 +44,9 @@ class Dungeon {
         void SplitSpace(Node<AABB>* node);
         void FindRoomsDigCorridors();
         void PlaceEntranceAndExit();
+		void BakeFloor();
+		void PlaceDoors();
+		void BakeDetails();
 };
 
 
