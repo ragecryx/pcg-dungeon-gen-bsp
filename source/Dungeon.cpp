@@ -8,11 +8,6 @@
 
 
 // Constructors
-Dungeon::Dungeon(int width, int height, int unit_square) : mRootNode(nullptr, AABB(0,0,width,height)) {
-    Dungeon("DeFaUlT_*_SeEd", width, height, unit_square);
-}
-
-
 Dungeon::Dungeon(std::string seed, int width, int height, int unit_square) : mRootNode(nullptr, AABB(0,0,width,height)) {
     mWidth = width;
     mHeight = height;
@@ -21,16 +16,16 @@ Dungeon::Dungeon(std::string seed, int width, int height, int unit_square) : mRo
 	mGrid = std::vector< std::vector< unsigned int > >(height, std::vector< unsigned int >(width, 0));
 	
 	#ifdef DEBUG
-	std::cout << "Spitting the grid [" << mGrid.size() << "]: " << std::endl;
-	for(int i = 0; i<mGrid.size(); i++) {
-		for(int j = 0; j<mGrid[i].size(); j++) {
-			std::cout << mGrid[i][j];
+		std::cout << "The grid [" << &mGrid << "]" << std::endl;
+		for(int i = 0; i<mGrid.size(); i++) {
+			for(int j = 0; j<mGrid[i].size(); j++) {
+				std::cout << mGrid[i][j];
+			}
+			std::cout << std::endl;
 		}
-		std::cout << std::endl;
-	}
 	#endif
 	
-	std::cout << "Grid height: " << mGrid.size();
+	std::cout << "Grid height: " << mGrid.size() << std::endl;
     
     mSeedString = seed;
     mSeedSeq = std::seed_seq( mSeedString.begin(), mSeedString.end() );
@@ -50,12 +45,13 @@ void Dungeon::Generate() {
     std::cout << "Dungeon Generation complete!" << std::endl;
 	
 	#ifdef DEBUG
-	std::cout << "Spitting the grid [" << mGrid.size() << "]: " << std::endl;
-	for(int i = 0; i<mGrid.size(); i++)
-		for(int j = 0; j<mGrid[i].size(); j++) {
-			std::cout << mGrid[i][j];
+		std::cout << "The grid [" << &mGrid << "] " << std::endl;
+		for(int i = 0; i<mGrid.size(); i++) {
+			for(int j = 0; j<mGrid[i].size(); j++) {
+				std::cout << mGrid[i][j];
+			}
+			std::cout << std::endl;
 		}
-		std::cout << std::endl;
 	#endif
 }
 

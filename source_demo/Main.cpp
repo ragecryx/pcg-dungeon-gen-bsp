@@ -9,7 +9,7 @@ using namespace std;
 
 int main() {
 	
-	Dungeon d(40, 30, 12);
+	Dungeon d("test_seed", 40, 30, 12);
 	d.Generate();
 	
 	cin.get();

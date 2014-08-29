@@ -23,7 +23,6 @@ typedef std::vector< std::vector<unsigned int> > Grid;
  */
 class Dungeon {
     public:
-        Dungeon(int width, int height, int unit_square);
         Dungeon(std::string seed, int width, int height, int unit_square);
         ~Dungeon();
     private:
