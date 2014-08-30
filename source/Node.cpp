@@ -11,7 +11,12 @@ Node<T>::Node(Node<T>* parent, T data) {
 }
 
 template<typename T>
-Node<T>::~Node() { }
+Node<T>::~Node() {
+	if(mpLeft != nullptr)
+		delete mpLeft;
+	if(mpRight != nullptr)
+		delete mpRight;
+}
 
 
 

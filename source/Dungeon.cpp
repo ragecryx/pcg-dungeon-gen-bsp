@@ -16,7 +16,7 @@ Dungeon::Dungeon(std::string seed, int width, int height, int unit_square) : mRo
     mHeight = height;
     mUnitSquare = unit_square;
     // init grid
-	mGrid = std::vector< std::vector< unsigned int > >(height, std::vector< unsigned int >(width, TILE_TYPE::Empty));
+	mGrid = std::vector< std::vector< unsigned int > >(mHeight, std::vector< unsigned int >(mWidth, TILE_TYPE::Empty));
     
     mSeedString = seed;
     mSeedSeq = std::seed_seq( mSeedString.begin(), mSeedString.end() );
@@ -32,7 +32,13 @@ Dungeon::~Dungeon() { }
 // Public Methods
 void Dungeon::Generate() {
 	// Clean-up if already generated
-	// TODO
+	mRootNode = Node<AABB>(nullptr, AABB(0, 0, mWidth, mHeight));
+	mRooms.clear();
+	mCorridors.clear();
+	mTreasures.clear();
+	mMonsters.clear();
+	mTraps.clear();
+	ClearGrid();
 	
 	// Generate dungeon parts
     SplitSpace(&mRootNode);
@@ -58,8 +64,14 @@ void Dungeon::Generate() {
 
 
 // Private Methods
+void Dungeon::ClearGrid() {
+	mGrid.clear();
+	mGrid = std::vector< std::vector< unsigned int > >(mHeight, std::vector< unsigned int >(mWidth, TILE_TYPE::Empty));
+}
+
+
 void Dungeon::SplitSpace(Node<AABB>* node) {
-    
+
     float ratio = (float)node->GetData().getWidth() / node->GetData().getHeight();
     bool splitVertical = true;
     if(ratio < 1.0f)

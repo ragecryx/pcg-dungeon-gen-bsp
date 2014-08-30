@@ -10,7 +10,9 @@ using namespace std;
 int main() {
 	
 	Dungeon d("test_seed", 60, 30, 12);
-	d.Generate();
+	do {
+		d.Generate();
+	} while( cin.get() );
 	
 	cin.get();
 	

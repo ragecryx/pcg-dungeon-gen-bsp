@@ -45,7 +45,8 @@ class Dungeon {
         Node<AABB> mRootNode;
     public:
         void Generate(void);
-    private:
+	private:
+		void ClearGrid();
         void SplitSpace(Node<AABB>* node);
         void FindRoomsDigCorridors();
         void PlaceEntranceAndExit();
