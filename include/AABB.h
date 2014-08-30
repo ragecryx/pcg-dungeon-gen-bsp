@@ -27,6 +27,7 @@ class AABB {
         int Y() const;
         void setPosition(int x, int y);
         void setSize(int w, int h);
+		bool isInside(Vec2 &p) const;
 };
 
 

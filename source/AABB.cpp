@@ -63,3 +63,9 @@ void AABB::setSize(int w, int h) {
 }
 
 
+bool AABB::isInside(Vec2 &p) const {
+	return ( p.x >= mPosition.x && p.x <= (mPosition.x+mSize.x) &&
+			 p.y >= mPosition.y && p.y <= (mPosition.y+mSize.y) );
+}
+
+

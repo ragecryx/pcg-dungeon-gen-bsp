@@ -7,17 +7,21 @@
 #include "Corridor.h"
 
 
+#define RAND_GEN_PERCENTAGE (float)mUniDistr(mRandGen)
+
+
 // Constructors
 Dungeon::Dungeon(std::string seed, int width, int height, int unit_square) : mRootNode(nullptr, AABB(0,0,width,height)) {
     mWidth = width;
     mHeight = height;
     mUnitSquare = unit_square;
     // init grid
-	mGrid = std::vector< std::vector< unsigned int > >(height, std::vector< unsigned int >(width, 0));
+	mGrid = std::vector< std::vector< unsigned int > >(height, std::vector< unsigned int >(width, TILE_TYPE::Empty));
     
     mSeedString = seed;
     mSeedSeq = std::seed_seq( mSeedString.begin(), mSeedString.end() );
     mRandGen = std::mt19937( mSeedSeq );
+	mUniDistr = std::uniform_real_distribution<float>(0.0f, 1.0f);
 }
 
 
@@ -36,6 +40,7 @@ void Dungeon::Generate() {
 	BakeFloor();
 	PlaceEntranceAndExit();
 	PlaceDoors();
+	PlaceTreasureAndMonsters();
 	BakeDetails();
 	
     std::cout << "Dungeon Generation complete!" << std::endl;
@@ -61,9 +66,9 @@ void Dungeon::SplitSpace(Node<AABB>* node) {
         splitVertical = false;
         
     
-    float split = (float)mRandGen() / 10000000000;
+    float split = RAND_GEN_PERCENTAGE;
     do {
-        split = (float)mRandGen() / 10000000000;
+        split = RAND_GEN_PERCENTAGE;
     } while (split < 0.4f || split > 0.6f);
     
     
@@ -146,12 +151,12 @@ void Dungeon::PlaceEntranceAndExit() {
     i = j = 0;
 
     // Randomly choose room for each
-    if( (float)mRandGen() / 10000000000 > 0.5f ) {
-        i = floorf( (float)mRandGen() / 10000000000 * (mRooms.size() / 2.0f) );
-        j = floorf( (mRooms.size() / 2.0f) + (float)mRandGen() / 10000000000 * (mRooms.size() / 2.0f) );
+    if( RAND_GEN_PERCENTAGE > 0.5f ) {
+        i = floorf( RAND_GEN_PERCENTAGE * (mRooms.size() / 2.0f) );
+        j = floorf( (mRooms.size() / 2.0f) + RAND_GEN_PERCENTAGE * (mRooms.size() / 2.0f) );
     } else {
-        j = floorf( (float)mRandGen() / 10000000000 * (mRooms.size() / 2.0f) );
-        i = floorf( (mRooms.size() / 2.0f) + (float)mRandGen() / 10000000000 * (mRooms.size() / 2.0f) );
+        j = floorf( RAND_GEN_PERCENTAGE * (mRooms.size() / 2.0f) );
+        i = floorf( (mRooms.size() / 2.0f) + RAND_GEN_PERCENTAGE * (mRooms.size() / 2.0f) );
     }
     
     // Set the center of the rooms as entrance and exit
@@ -173,7 +178,7 @@ void Dungeon::BakeFloor() {
 	for(std::vector< Room >::iterator it = mRooms.begin(); it != mRooms.end(); ++it) {
 		for(int i = it->Y(); i < it->Y()+it->getHeight(); i++) {
 			for(int j = it->X(); j < it->X()+it->getWidth(); j++) {
-				mGrid[i][j] = 1;
+				mGrid[i][j] = TILE_TYPE::Floor;
 			}
 		}
 	}
@@ -181,7 +186,7 @@ void Dungeon::BakeFloor() {
 	for(std::vector< Path >::iterator it = mCorridors.begin(); it != mCorridors.end(); ++it) {
 		for(Path::iterator pathIt = it->begin(); pathIt != it->end(); ++pathIt) {
 			if(mGrid[pathIt->y][pathIt->x] != 1)
-				mGrid[pathIt->y][pathIt->x] = 2;
+				mGrid[pathIt->y][pathIt->x] = TILE_TYPE::Corridor;
 		}
 	}
 }
@@ -195,7 +200,7 @@ void Dungeon::PlaceDoors() {
 				(mGrid[i+1][j] != 5 && mGrid[i-1][j] != 5 && mGrid[i][j+1] != 5 && mGrid[i][j-1] != 5) &&
 				((mGrid[i+1][j] == 0 && mGrid[i-1][j] == 0) || (mGrid[i][j+1] == 0 && mGrid[i][j-1] == 0)) )
 					{
-						mGrid[i][j] = 5;
+						mGrid[i][j] = TILE_TYPE::Door;
 					}
 		}
 	}
@@ -203,10 +208,40 @@ void Dungeon::PlaceDoors() {
 
 
 
+void Dungeon::PlaceTreasureAndMonsters() {
+	// Iterate rooms and place treasure, monsters and traps
+	for(std::vector< Room >::iterator it = mRooms.begin(); it != mRooms.end(); ++it) {
+		int scale = (int)((float)it->getVolume()/8.0f);
+		// Monsters
+		for(int i = 0; i<scale; i++)
+			mMonsters.push_back( Vec2(it->X() + (int)(it->getWidth() * RAND_GEN_PERCENTAGE), it->Y() + (int)(it->getHeight() * RAND_GEN_PERCENTAGE)) );
+		// Treasures
+		if( scale > 3) {
+			mTreasures.push_back( Vec2(it->X() + (int)(it->getWidth() * RAND_GEN_PERCENTAGE), it->Y() + (int)(it->getHeight() * RAND_GEN_PERCENTAGE)) );
+			mTreasures.push_back( Vec2(it->X() + (int)(it->getWidth() * RAND_GEN_PERCENTAGE), it->Y() + (int)(it->getHeight() * RAND_GEN_PERCENTAGE)) );
+		} else if (scale >= 1)
+			mTreasures.push_back( Vec2(it->X() + (int)(it->getWidth() * RAND_GEN_PERCENTAGE), it->Y() + (int)(it->getHeight() * RAND_GEN_PERCENTAGE)) );
+		// Traps
+		if( RAND_GEN_PERCENTAGE > 0.35f )
+			mTraps.push_back( Vec2(it->X() + (int)(it->getWidth() * RAND_GEN_PERCENTAGE), it->Y() + (int)(it->getHeight() * RAND_GEN_PERCENTAGE)) );
+	}
+}
+
+
+
 void Dungeon::BakeDetails() {
 	// Entrance and exit...
-	mGrid[mEntrance.y][mEntrance.x] = 3;
-	mGrid[mExit.y][mExit.x] = 4;
+	mGrid[mEntrance.y][mEntrance.x] = TILE_TYPE::Entrance;
+	mGrid[mExit.y][mExit.x] = TILE_TYPE::Exit;
+	// Monsters...
+	for(std::vector< Vec2 >::iterator it = mMonsters.begin(); it != mMonsters.end(); ++it)
+		mGrid[it->y][it->x] = TILE_TYPE::Monster;
+	// Treasure...
+	for(std::vector< Vec2 >::iterator it = mTreasures.begin(); it != mTreasures.end(); ++it)
+		mGrid[it->y][it->x] = TILE_TYPE::Treasure;
+	// Traps...
+	for(std::vector< Vec2 >::iterator it = mTraps.begin(); it != mTraps.end(); ++it)
+		mGrid[it->y][it->x] = TILE_TYPE::Trap;
 }
 
 
