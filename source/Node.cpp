@@ -1,5 +1,5 @@
-#include "Node.h"
-#include "AABB.h"
+#include "PCG-BSPDungeonGen\Node.h"
+#include "PCG-BSPDungeonGen\AABB.h"
 
 // Constructors
 template<typename T>

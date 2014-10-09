@@ -1,10 +1,10 @@
-#include "Dungeon.h"
+#include "PCG-BSPDungeonGen\Dungeon.h"
 
 
 #include <iostream>
 #include <cmath>
 
-#include "Corridor.h"
+#include "PCG-BSPDungeonGen\Corridor.h"
 
 
 #define RAND_GEN_PERCENTAGE (float)mUniDistr(mRandGen)
@@ -28,7 +28,7 @@ Dungeon::Dungeon(std::string seed, int width, int height, int unit_square) : mRo
 Dungeon::~Dungeon() { }
 
 
-
+#define DEBUG 1
 // Public Methods
 void Dungeon::Generate() {
 	// Clean-up if already generated

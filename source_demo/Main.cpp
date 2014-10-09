@@ -1,9 +1,9 @@
 #include <iostream>
 
-#include <Dungeon.h>
-#include <Node.h>
-#include <AABB.h>
-#include <Corridor.h>
+#include <PCG-BSPDungeonGen\Dungeon.h>
+#include <PCG-BSPDungeonGen\Node.h>
+#include <PCG-BSPDungeonGen\AABB.h>
+#include <PCG-BSPDungeonGen\Corridor.h>
 
 using namespace std;
 
