@@ -72,6 +72,7 @@ void Dungeon::ClearGrid() {
 
 void Dungeon::SplitSpace(Node<AABB>* node) {
 
+	// Choose how and where to split
     float ratio = (float)node->GetData().getWidth() / node->GetData().getHeight();
     bool splitVertical = true;
     if(ratio < 1.0f)
@@ -84,6 +85,8 @@ void Dungeon::SplitSpace(Node<AABB>* node) {
     } while (split < 0.4f || split > 0.6f);
     
     
+    // Create and calculate the 2 subspaces
+    // of the splitted one.
     AABB subspaceA, subspaceB;
     
     if( splitVertical ) {
@@ -107,10 +110,12 @@ void Dungeon::SplitSpace(Node<AABB>* node) {
 		std::cout << std::endl;
     #endif
     
+    // Add subspaces to the current node
     node->MakeLeftChild(subspaceA);
     node->MakeRightChild(subspaceB);
     
     // Decide if we need to split more
+    // and continue recursion.
     if( subspaceA.getWidth() > 7 && subspaceA.getHeight() > 6 )
         SplitSpace(node->GetLeftChild());
     if( subspaceB.getWidth() > 7 && subspaceB.getHeight() > 6 )
@@ -139,7 +144,8 @@ void Dungeon::FindRoomsDigCorridors() {
     // corridors using pathfind function (grid-based)
     while( it.Next() != false ) {
         if( !it.IsLeaf() ) {
-            Path corridor = FindPath( it.GetNode()->GetLeftChild()->GetData().getCenter(), it.GetNode()->GetRightChild()->GetData().getCenter() );
+            Path corridor = FindPath( it.GetNode()->GetLeftChild()->GetData().getCenter(),
+            						  it.GetNode()->GetRightChild()->GetData().getCenter() );
             mCorridors.push_back(corridor);
 
             #ifdef DEBUG
@@ -162,7 +168,9 @@ void Dungeon::PlaceEntranceAndExit() {
               // j is the index of the room with the exit
     i = j = 0;
 
-    // Randomly choose room for each
+    // There are N rooms, choose if entrance will be in one
+    // of the rooms of the first half (0 to N/2) or on the
+    // second (N/2 to N). Exit will be on the other.
     if( RAND_GEN_PERCENTAGE > 0.5f ) {
         i = floorf( RAND_GEN_PERCENTAGE * (mRooms.size() / 2.0f) );
         j = floorf( (mRooms.size() / 2.0f) + RAND_GEN_PERCENTAGE * (mRooms.size() / 2.0f) );
@@ -180,13 +188,14 @@ void Dungeon::PlaceEntranceAndExit() {
         std::cout << "Exit: [" << mExit.x << ", " << mExit.y << "]" << std::endl;
     #endif
 
-}
+} // method ends here
 
 
 
 void Dungeon::BakeFloor() {
 	std::cout << std::endl << "Baking data on mGrid..." << std::endl;
-	// Rooms...
+
+	// Fill rooms on the grid with the proper id (floor=1)
 	for(std::vector< Room >::iterator it = mRooms.begin(); it != mRooms.end(); ++it) {
 		for(int i = it->Y(); i < it->Y()+it->getHeight(); i++) {
 			for(int j = it->X(); j < it->X()+it->getWidth(); j++) {
@@ -194,18 +203,23 @@ void Dungeon::BakeFloor() {
 			}
 		}
 	}
-	// Corridors...
+
+	// Fill corridors on the grid with the proper id (corridor=2)
 	for(std::vector< Path >::iterator it = mCorridors.begin(); it != mCorridors.end(); ++it) {
 		for(Path::iterator pathIt = it->begin(); pathIt != it->end(); ++pathIt) {
 			if(mGrid[pathIt->y][pathIt->x] != 1)
 				mGrid[pathIt->y][pathIt->x] = TILE_TYPE::Corridor;
 		}
 	}
-}
+
+} // method ends here
 
 
 
 void Dungeon::PlaceDoors() {
+	// Detects corridor-room crossings and
+	// places doors (door=5)
+	// *fix* weird door placement sometimes
 	for(int i = 1; i < mGrid.size()-1; i++) {
 		for(int j = 1; j < mGrid[i].size()-1; j++) {
 			if( mGrid[i][j] == 2 && (mGrid[i+1][j] == 1 || mGrid[i-1][j] == 1 || mGrid[i][j+1] == 1 || mGrid[i][j-1] == 1) &&
@@ -242,6 +256,9 @@ void Dungeon::PlaceTreasureAndMonsters() {
 
 
 void Dungeon::BakeDetails() {
+	// Write the details of the dungeon to its grid.
+	// Details = Entrance/Exit, Monsters, Treasure and Traps
+
 	// Entrance and exit...
 	mGrid[mEntrance.y][mEntrance.x] = TILE_TYPE::Entrance;
 	mGrid[mExit.y][mExit.x] = TILE_TYPE::Exit;
