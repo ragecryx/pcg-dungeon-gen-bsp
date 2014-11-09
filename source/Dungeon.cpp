@@ -63,6 +63,12 @@ void Dungeon::Generate() {
 
 
 
+Grid Dungeon::GetGrid(void) {
+	return mGrid;
+}
+
+
+
 // Private Methods
 void Dungeon::ClearGrid() {
 	mGrid.clear();

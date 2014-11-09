@@ -16,6 +16,7 @@
 
 typedef AABB Room;
 typedef std::vector< Vec2 > Path;
+typedef std::vector<unsigned int> GridLine;
 typedef std::vector< std::vector<unsigned int> > Grid;
 
 
@@ -45,6 +46,7 @@ class Dungeon {
         Node<AABB> mRootNode;
     public:
         void Generate(void);
+        Grid GetGrid(void);
 	private:
 		void ClearGrid();
         void SplitSpace(Node<AABB>* node);
