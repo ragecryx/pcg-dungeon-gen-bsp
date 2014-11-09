@@ -24,7 +24,7 @@ typedef std::vector< std::vector<unsigned int> > Grid;
  */
 class Dungeon {
     public:
-        Dungeon(std::string seed, int width, int height, int unit_square);
+        Dungeon(std::string seed, int width, int height);
         ~Dungeon();
 		enum TILE_TYPE { Empty=0, Floor=1, Corridor=2, Entrance=3, Exit=4, Door=5, Treasure=6, Monster=7, Trap=8 };
     private:

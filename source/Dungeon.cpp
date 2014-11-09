@@ -11,10 +11,7 @@
 
 
 // Constructors
-Dungeon::Dungeon(std::string seed, int width, int height, int unit_square) : mRootNode(nullptr, AABB(0,0,width,height)) {
-    mWidth = width;
-    mHeight = height;
-    mUnitSquare = unit_square;
+Dungeon::Dungeon(std::string seed, int width, int height) : mWidth(width), mHeight(height), mRootNode(nullptr, AABB(0,0,width,height)) {
     // init grid
 	mGrid = std::vector< std::vector< unsigned int > >(mHeight, std::vector< unsigned int >(mWidth, TILE_TYPE::Empty));
     
